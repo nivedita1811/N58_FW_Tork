@@ -4,6 +4,7 @@
 #include "device_config.h"
 #include "nwy_spi.h"
 #include "bytebeam_sdk.h"
+#include "bytebeam_mqtt.c"
 
 int STM_UART_fd = 0;
 bool store_msg_flag = false;
