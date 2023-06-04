@@ -514,6 +514,8 @@
 
 
 void publish_new_thread(char *content);
+JSMN_JSON_NEW_MESSAGE_tst JSMN_JSON_NEW_MESSAGE_st_obj;
+
 
 extern char device_id_global[5];
 extern char project_id_global[25];
@@ -1153,6 +1155,8 @@ bool get_MQTT_COnnection_Status(void)
     nwy_ext_echo("\r\nNo MQTT");
     return false;
 }
+
+
 int publish_new_thread(char *content)
 {
                 gettimeofday(&tv, NULL);
