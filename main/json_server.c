@@ -5,6 +5,7 @@
 #include "bytebeam.h"
 #include "json_server.h"
 
+
 uint8_t json_can_message_buff_gau8[JSON_CAN_MESSAGES_BUFF_LEN] = {
     0,
 };
