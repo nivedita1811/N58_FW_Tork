@@ -308,24 +308,34 @@ void test_imu()
     }
 }
 
-// Thread entry function
+
+// Define the action name
+char new_action[] = "new_action";
+
 void new_thread_entry(void *param) 
 {
     char *action_id = (char *)param;
     char *content = "hello from cloud";
-    // Block the thread initially
-    nwy_semaphore_acquire(new_thread_semaphore, 1);
+    
+    // Lock the thread initially
+    nwy_semaphore_acquire(new_thread_semaphore, 0);
+    
     while (1) 
     {
-        // Wait for the semaphore to be released
-        nwy_semaphore_acquire(new_thread_semaphore, 0);
-        // Print the content
-        nwy_ext_echo("%s", content);
-        // Publish the content or perform other actions
-        publish_new_thread(content);
-    
+        if (strcmp(action_id, new_action) == 0) 
+        {
+            // Release the thread
+            release_new_thread();
+            
+            // Print the content
+            nwy_ext_echo("%s", content);
+            
+            // Publish the content
+            publish_new_thread(content);
+        }
     }
 }
+
 
 int release_new_thread()
 {
