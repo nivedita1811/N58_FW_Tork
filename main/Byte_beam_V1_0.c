@@ -308,18 +308,22 @@ void test_imu()
         }
     }
 }
-void newThreadEntry(void *param) {
-    char *action_id = (char *)param;
-    char content[50]; 
 
-     // Locking the thread using the semaphore
-    if (nwy_semaphore_acquire(new_thread_semaphore, 0xFFFF) == true)
+// Thread entry function
+void new_thread_entry(void *param) 
+{
+    char *action_id = (char *)param;
+    char *content = "hello from cloud";
+    while (1) 
     {
-    nwy_ext_echo("%s", content);
-    publish_new_thread(&content);
+      // Block the thread initially
+      nwy_semaphore_acquire(new_thread_semaphore, 0);
+      // Release the semaphore 
+      release_new_thread();
+      nwy_ext_echo("%s", content);
+      publish_new_thread(content);
+    
     }
-    
-    
 }
 
 int appimg_enter(void *param)
@@ -397,7 +401,7 @@ int appimg_enter(void *param)
     s32_update_thread = nwy_create_thread("s32_app_thread", s32_update_app, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 15, 16);
 
     //creating my new thread
-    new_thread = nwy_create_thread("new_thread", newThreadEntry, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 10, 16);
+    new_thread = nwy_create_thread("new_thread", new_thread_entry, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 10, 16);
 
     Network_Init();
     network_app_thread = nwy_create_thread("mythread", Network_ThreadEntry, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 20, 16);

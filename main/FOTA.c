@@ -227,7 +227,7 @@ void http_result_cb(nwy_ftp_result_t *param)
                 publish_action_status(ota_action_id,75, "Progress", "");
                 untar_files();
                 // ia_fota_test();
-                nwy_semahpore_release(tork_update_semaphore);
+                nwy_semaphore_release(tork_update_semaphore);
             }
             else
             {

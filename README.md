@@ -1,29 +1,66 @@
-## Thread Name
+# Tork Motors N58 Firmware
 
-- Name: new_thread
+This repo contains production N58 firmware for tork devices
 
-## Thread Entry Function
+## Project Setup
 
-- Function: newThreadEntry
-- Location: Byte_beam_V1_0.c
+```bash
+# clone the repo
+$ git clone https://github.com/bytebeamio/Tork_Motors_N58_FW.git
 
-## Action Handler Function
+# step into cloned repo directory
+$ cd Tork_Motors_N58_FW
 
-- Function: handle_new_action
-- Location: bytebeam_actions.c
+# install the python dependencies
+$ pip install -r requirements.txt
+```
 
-## Publish Stream Function
+## Project Usage
 
-- Function: publish_new_thread
-- Location: bytebeam_mqtt.c
+### Environment Setup
 
-## Publishing New Message via MQTT
-- Topic : NEW_TOPIC
-- Case : 0x123
+```bash
+# setup nwy environment
+$ nwy_env.bat
+```
 
-## JSON New Thread Message
+### Available Commands
+```bash
+# show nwy.py version
+$ nwy.py --version
 
-- Array Name: json_new_thread_buff_gau8
-- - Location: json_server.c
+# show help message
+$ nwy.py --help
 
+# enter boot mode
+$ nwy.py boot
 
+# trigger soft reset
+$ nwy.py reset
+
+# build application
+$ nwy.py build
+
+# flash executable
+$ nwy.py flash
+
+# monitor output
+$ nwy.py monitor
+
+# build differential ota image
+$ nwy.py build-ota
+```
+
+## Making Changes
+
+Make changes to the nwy.py script and once done you can use the below commands to generate the nwy.py binary on your end
+
+**Note:** If you would like to share the changes with others, We recomment to increase the nwy.py version based on your changes :)
+
+```bash
+## step into script directory
+$ cd script
+
+# build nwy.py exectuable
+$ build_nwy.py.bat
+```

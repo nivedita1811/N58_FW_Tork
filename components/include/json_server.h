@@ -57,13 +57,13 @@ typedef struct __attribute__((packed)) JSMN_JSON_IMU_MESSAGE_tst_tag
 
 extern JSMN_JSON_IMU_MESSAGE_tst JSMN_JSON_IMU_MESSAGE_st_obj;
 
-typedef struct __attribute__((packed)) JSMN_JSON_NEW_MESSAGE_tst tag
+typedef struct __attribute__((packed)) JSMN_JSON_NEW_MESSAGE_tst_tag
 {
-    uint16_t content;
+    char content[50];
 } JSMN_JSON_NEW_MESSAGE_tst;
 
 
-extern JSMN_JSON_NEW_MESSAGE_tst JSMN_JSON_NEW_MESSAGE_st obj;
+extern JSMN_JSON_NEW_MESSAGE_tst JSMN_JSON_NEW_MESSAGE_st_obj;
 
 extern uint8_t json_can_message_buff_gau8[JSON_CAN_MESSAGES_BUFF_LEN];
 extern uint8_t json_gps_message_buff_gau8[JSON_GPS_MESSAGES_BUFF_LEN];
@@ -76,6 +76,6 @@ extern uint8_t json_new_thread_buff_gau8[NEW_THREAD_MSG_BUFF_LEN];
 extern uint8_t json_pack_can_message(JSMN_JSON_CAN_MESSAGE_tst *can_mess_pst, uint64_t timestamp);
 extern uint8_t json_pack_gps_message(JSMN_JSON_GPS_MESSAGE_tst *gps_mess_pst);
 extern uint8_t json_pack_imu_message(JSMN_JSON_IMU_MESSAGE_tst *imu_mess_pst);
-extern uint8_t json_pack_new_message(JSMN_JSON_NEW_MESSAGE_tst *imu_mess_pst);
+extern uint8_t json_pack_new_message(JSMN_JSON_NEW_MESSAGE_tst *new_mess_pst);
 
 #endif

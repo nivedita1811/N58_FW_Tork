@@ -5,7 +5,6 @@
 #include "bytebeam.h"
 #include "json_server.h"
 
-
 uint8_t json_can_message_buff_gau8[JSON_CAN_MESSAGES_BUFF_LEN] = {
     0,
 };
@@ -115,7 +114,7 @@ uint8_t json_pack_can_message(JSMN_JSON_CAN_MESSAGE_tst *can_mess_pst, uint64_t 
 
    
 
-    struct timeval tv;
+    //struct timeval tv;
     // gettimeofday(&tv, NULL);
 
     // double s = tv.tv_sec;
@@ -176,7 +175,7 @@ uint8_t json_pack_gps_message(JSMN_JSON_GPS_MESSAGE_tst *gps_mess_pst)
     return 0;
 }
 
-uint8_t json_pack_new_message(JSMN_JSON_NEW_MESSAGE_tst *new_mess_pst);
+uint8_t json_pack_new_message(JSMN_JSON_NEW_MESSAGE_tst *new_mess_pst)
 {
     struct timeval tv;
 

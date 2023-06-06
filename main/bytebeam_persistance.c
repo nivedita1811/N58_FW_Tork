@@ -232,7 +232,7 @@ void store_data_ThreadEntry(void *param)
                     storage_task_fd_open = true;
                 }
             }
-            nwy_semahpore_release(file_semaphore);
+            nwy_semaphore_release(file_semaphore);
         }
 
         nwy_sleep(1);
@@ -639,7 +639,7 @@ void read_data_ThreadEntry(void *param)
                     }
                 }
 #endif
-                nwy_semahpore_release(file_semaphore);
+                nwy_semaphore_release(file_semaphore);
             }
         }
 #endif

@@ -284,7 +284,7 @@ int32_t send_ack_nack(uint8_t status, uint8_t command, uint8_t *payload, uint16_
             // nwy_usleep(50);                      //changed from 1100 to 50
         }
         nwy_sleep(1);
-        nwy_semahpore_release(uart_tx_semaphore);
+        nwy_semaphore_release(uart_tx_semaphore);
     }
 
     return 0;
@@ -924,6 +924,7 @@ void UART_tx_ThreadEntry(void *param)
 {
 }
 
+
 /**
 =====================================================================================================================================================
 
@@ -1037,7 +1038,7 @@ int tork_send_can_data(uint32_t can_msg_id, uint8_t *can_data_arr, uint8_t seq)
             nwy_uart_send_data(STM_UART_fd, (uint8_t *)&can_data[i], 1);
             nwy_usleep(50);
         }
-        nwy_semahpore_release(uart_tx_semaphore);
+        nwy_semaphore_release(uart_tx_semaphore);
     }
     // nwy_ext_echo("Exiting UART transmission\r\n");
     return 0;
@@ -1134,7 +1135,7 @@ void tork_app_update(void *param)
                 // nwy_ext_echo("Entering task\r\n");
                 if (tork_file_present == 0)
                 {
-                    nwy_semahpore_release(s32_update_semaphore);
+                    nwy_semaphore_release(s32_update_semaphore);
                     publish_action_status(ota_action_id, 85, "Progress", "");
                     break;
                 }
@@ -1261,7 +1262,7 @@ void tork_app_update(void *param)
                 {
                     idle_state_counter = 0;
                     tork_file_present = 0;
-                    nwy_semahpore_release(s32_update_semaphore);
+                    nwy_semaphore_release(s32_update_semaphore);
                     publish_action_status(ota_action_id, 85, "Progress", "");
                     // http_download_flag = 0;
                     // nwy_resume_thread(gps_app_thread);
@@ -1689,7 +1690,7 @@ void bootloader_app_uart_data_send_v(uint8_t cmd, uint8_t cmd_sts, uint8_t *data
             // nwy_sleep(1);
             nwy_usleep(50);
         }
-        nwy_semahpore_release(uart_tx_semaphore);
+        nwy_semaphore_release(uart_tx_semaphore);
     }
 }
 

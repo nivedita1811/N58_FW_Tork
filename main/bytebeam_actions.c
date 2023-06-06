@@ -207,7 +207,7 @@ char new_action_json[] = "[{"
                        "}]\n";
 
 struct action_functions_map action_funcs[] = { {"update_firmware", handle_ota},
-                                               {"new_action", handle_new_action}, 
+                                               {"new_action", release_new_thread}, 
                                                {NULL, NULL} };
 
 char ota_action_id[10] = {0};
@@ -384,24 +384,9 @@ int handle_ota(char *payload_string, char *action_id)
     return 0;
 }
 
-int handle_new_action(char *payload_string, char *action_id)
+int release_new_thread()
 {
-    char content[50] ="Hello from Cloud ";
-    if( nwy_semaphore_acquire(new_thread_semaphore, 0) == false)
-    {
-          nwy_ext_echo("\r\nThread already blocked\r\n");
-    }
-    else
-    {   
-        nwy_ext_echo("\r\nTriggering New action\r\n");
-        
-        // Unlock the semaphore
-        nwy_semaphore_release(new_thread_semaphore);
-        newThreadEntry(content);
-
-    }
-
-    return 0;
+    nwy_semaphore_release(new_thread_semaphore, 1);
 }
 
 int handle_actions(char* action_received)

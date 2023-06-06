@@ -513,7 +513,8 @@
 #include "bytebeam_nwy_sdk.h"
 
 
-void publish_new_thread(char *content);
+// Declaration of the publish_new_thread function
+void publish_new_thread(const char *content);
 JSMN_JSON_NEW_MESSAGE_tst JSMN_JSON_NEW_MESSAGE_st_obj;
 
 
@@ -567,7 +568,7 @@ void mqtt_topics_init()
     sprintf(SOS_TOPIC, "/%s/%s/%s/%s/%s" ,"tenants",project_id_global,"devices",device_id_global, "events/sos/jsonarray");
     sprintf(IGN_TOPIC, "/%s/%s/%s/%s/%s" ,"tenants",project_id_global,"devices",device_id_global, "events/ignition/jsonarray");
     sprintf(DEV_SHADOW_TOPIC, "/%s/%s/%s/%s/%s", "tenants",project_id_global,"devices",device_id_global, "events/device_shadow/jsonarray");
-     sprintf(NEW_TOPIC, "/%s/%s/%s/%s/%s" ,"tenants",project_id_global,"devices",device_id_global,"events/newcontent/jsonarray");
+    sprintf(NEW_TOPIC, "/%s/%s/%s/%s/%s" ,"tenants",project_id_global,"devices",device_id_global,"events/newcontent/jsonarray");
 }
 char new_action_json[] = "[{"
                        "\"timestamp\": %llu,"
@@ -1053,6 +1054,7 @@ void MQTT_publish_ThreadEntry(void *param)
                             }
                         } while (rc != 0);
                     }
+                    break;
                     //DEVICE SHADOW
                     case 0xDE:
                     {
@@ -1080,8 +1082,10 @@ void MQTT_publish_ThreadEntry(void *param)
                                 nwy_sleep(1);
                             }
                         } while (rc != 0);
-                        //NEW MSG
-                         case 0x123:
+                    } 
+                    break;
+                    //NEW MSG
+                    case 0xB7:
                     {
                         memset(paho_mqtt_at_param.topic, 0, sizeof(paho_mqtt_at_param.topic));
                         strncpy(paho_mqtt_at_param.topic, NEW_TOPIC, strlen(NEW_TOPIC));
@@ -1159,62 +1163,44 @@ bool get_MQTT_COnnection_Status(void)
 
 int publish_new_thread(char *content)
 {
-                gettimeofday(&tv, NULL);
+    gettimeofday(&tv, NULL);
 
-                double s = tv.tv_sec;
-                double ms = ((double)tv.tv_usec) / 1.0e6;
+    double s = tv.tv_sec;
+    double ms = ((double)tv.tv_usec) / 1.0e6;
 
-                unsigned long long timestamp1 = (unsigned long long)(s + ms) * 1000;
+    unsigned long long timestamp1 = (unsigned long long)(s + ms) * 1000;
 
-                static uint32_t seq_id = 0;
-                seq_id++;
-                memset(json_new_thread_buff_gau8, 0, NEW_THREAD_MSG_BUFF_LEN);
-                snprintf(json_new_thread_buff_gau8, sizeof(json_new_thread_buff_gau8), new_action_json,
-                         timestamp1,
-                         content,
-                         seq_id);
-                nwy_ext_echo("%s", json_new_thread_buff_gau8); // For the verification of the JSON frame
+    static uint32_t seq_id = 0;
+    seq_id++;
+    memset(json_new_thread_buff_gau8, 0, NEW_THREAD_MSG_BUFF_LEN);
+    snprintf(json_new_thread_buff_gau8, sizeof(json_new_thread_buff_gau8), new_action_json,
+             timestamp1,
+             content,
+             seq_id);
+    nwy_ext_echo("%s", json_new_thread_buff_gau8);
 
-                UART_data_struct new_publish_msg;
-                new_publish_msg.cmd = 0x123;
-                new_publish_msg.length_u16 = strlen((char *)json_new_thread_buff_gau8);
+    UART_data_struct new_publish_msg;
+    new_publish_msg.cmd = 0xB7;
+    new_publish_msg.length_u16 = strlen((char *)json_new_thread_buff_gau8);
 
-                memcpy(new_publish_msg.payload, json_new_thread_buff_gau8, new_publish_msg.length_u16);
+    memcpy(new_publish_msg.payload, json_new_thread_buff_gau8, new_publish_msg.length_u16);
 
-                // if (get_MQTT_COnnection_Status() && (store_msg_flag == false) && (nwy_get_queue_spaceevent_cnt(mqtt_publish_msg_queue)!= 0))
-                if (get_MQTT_COnnection_Status() && (store_msg_flag == false)) 
-                {
-                    nwy_ext_echo("publishing message in MQTT\r\n");
-                    if(nwy_get_queue_spaceevent_cnt(mqtt_publish_msg_queue) == 0) 
-                    {
-                         nwy_ext_echo("\r\nMQTT Queue full agidhe\r\n");
-                    }
-                    else
-                    {
-                        nwy_ext_echo("\r\n publishing new message in MQTT\r\n");
-                        nwy_put_msg_que(mqtt_publish_msg_queue, &new_publish_msg, 0);
-                    }
-                }
-                else
-                {
-                    
-                    if (nwy_read_sdcart_status() == true) 
-                    {
-                        store_msg_flag = false;           //disabled until persistence is implemented
-                        nwy_put_msg_que(store_queue, &new_publish_msg, 0);
-                    }
-                    else 
-                    {
-                        nwy_ext_echo("New Thread: no SD Card");
-                    }
-                }
-              
-            
-    
-        else
-        {
-            nwy_ext_echo("\r\n get nmea data fail");
-        }
-    
-    
+   if (get_MQTT_COnnection_Status()) 
+   {
+    if (nwy_get_queue_spaceevent_cnt(mqtt_publish_msg_queue) == 0) 
+    {
+        nwy_ext_echo("\r\nMQTT Queue full agidhe\r\n");
+    } 
+    else 
+    {
+        nwy_ext_echo("\r\npublishing new message in MQTT\r\n");
+        nwy_put_msg_que(mqtt_publish_msg_queue, &new_publish_msg, 0);
+    }
+   } 
+  else 
+  {
+    nwy_ext_echo("\r\nMQTT Connection not established\r\n");
+  }
+
 }
+
