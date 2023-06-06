@@ -175,7 +175,6 @@ void uart_recv_handle(const char *str, uint32_t length)
         for (int i = 0; i < length; i++)
         {
             //    nwy_ext_echo("%X ",str[i]);
-            //putting received data in queue
             if (FAILED == uart_rx_array_queue_put(str[i]))
             {
                 nwy_ext_echo("Put queue failure of data: %d", str[i]);
@@ -212,15 +211,13 @@ int32_t send_can_mqtt(UART_data_struct *uart_strcut)
 
     // if (nwy_read_sdcart_status() == false) // direct pass through
     // {
-   //If the queue is full
     if (nwy_get_queue_spaceevent_cnt(mqtt_publish_msg_queue) == 0)
     {
         nwy_ext_echo("\r\nMQTT Queue full agidhe\r\n");
     }
     else
     {
-            //f there is space available in the queue, it puts the uart_strcut data
-            nwy_put_msg_que(mqtt_publish_msg_queue, uart_strcut, 0);
+        nwy_put_msg_que(mqtt_publish_msg_queue, uart_strcut, 0);
     }
     // }
     // else
@@ -244,7 +241,6 @@ int32_t send_can_mqtt(UART_data_struct *uart_strcut)
     // }
 }
 
-//to send data from s32 to n58
 int32_t send_ack_nack(uint8_t status, uint8_t command, uint8_t *payload, uint16_t length)
 {
     uint16_t len = 13;
@@ -284,12 +280,12 @@ int32_t send_ack_nack(uint8_t status, uint8_t command, uint8_t *payload, uint16_
             // nwy_usleep(50);                      //changed from 1100 to 50
         }
         nwy_sleep(1);
-        nwy_semaphore_release(uart_tx_semaphore);
+        nwy_semahpore_release(uart_tx_semaphore);
     }
 
     return 0;
 }
-//takes a pointer to a structure UART_data_struct as an argument and returns an int32_t value
+
 int32_t execute_command(UART_data_struct *uart_strcut)
 {
 
@@ -298,7 +294,7 @@ int32_t execute_command(UART_data_struct *uart_strcut)
     static double s = 0;
     static double ms = 0;
     static unsigned long long timestamp_start;
-// ensures that the timestamp is initialized only once
+
     if (s == 0)
     {
         gettimeofday(&tv, NULL);
@@ -306,58 +302,43 @@ int32_t execute_command(UART_data_struct *uart_strcut)
         ms = ((double)tv.tv_usec) / 1.0e3;
         timestamp_start = (unsigned long long)(s * 1000 + ms);
     }
-   //checks the value of the variable uart_strcut->cmd.
+
     switch (uart_strcut->cmd)
     {
-        //if the value is 0x00 this block will be executed.
-
     case 0x00:
     {
         heart_beat_received_counter = 0;
-        //displaying the value of uart_strcut->cmd.
         nwy_ext_echo("Execute command %d\r\n", uart_strcut->cmd);
-        //s32_app_fw_ver is formatted using the snprintf() function,
-        // concatenating the values of all payload into a string
         snprintf(s32_app_fw_ver, 15, "\"%d.%d.%d\"", uart_strcut->payload[0], uart_strcut->payload[1], uart_strcut->payload[2]);
-        // calculating the voltage values 
         input_voltage = ((float)(((uint16_t)uart_strcut->payload[6] << 8) | uart_strcut->payload[5]) * 3.3 * 6.0) / 4096;
         batt_voltage = ((float)(((uint16_t)uart_strcut->payload[4] << 8) | uart_strcut->payload[3]) * 3.3 * 3.0) / 4096;
         ign_status = uart_strcut->payload[7];
-        //ign_status is assigned the value of uart_strcut->payload[7]
         send_ack_nack(0, uart_strcut->cmd, NULL, 0);
-        //statement is used to exit
         break;
     }
     case 0xCE:
-    {   //to format and store a string of the payload data into the tork_fw_ver and tork_hw_ver
+    {
         snprintf(tork_fw_ver, 15, "\"%c%c%c%c\"", uart_strcut->payload[0], uart_strcut->payload[1], uart_strcut->payload[2], uart_strcut->payload[3]);
-        //ensures that the formatted string will not exceed 15 characters
         snprintf(tork_hw_ver, 15, "\"%c%c%c%c\"", uart_strcut->payload[4], uart_strcut->payload[5], uart_strcut->payload[6], uart_strcut->payload[7]);
     }
     case 0x04:
-    {   //incremented by one
+    {
         count++;
         // nwy_ext_echo("Execute command switch %d\r\n", uart_strcut.cmd);
-        //to obtain the current time in seconds and microseconds
         gettimeofday(&tv, NULL);
         double s = tv.tv_sec;
         double ms = ((double)tv.tv_usec) / 1.0e3;
         unsigned long long timestamp_end = (unsigned long long)(s * 1000 + ms);
-        //last_can_rx_msg_time is updated with the value of timestamp_end, 
-        //representing the timestamp of the last received CAN message
         last_can_rx_msg_time = timestamp_end;
-        //checks if the difference between timestamp_end and 
-        //timestamp_start is greater than 950 milliseconds
+
         if ((timestamp_end - timestamp_start) > 950)
         {
             // nwy_ext_echo("\r\nTime elapsed:%llu count:%d, \r\n", timestamp_end-timestamp_start, count*60);
-            //start of a new time interval
             count = 0;
-            //representing the start timestamp of the current time interval
             timestamp_start = timestamp_end;
             // nwy_ext_echo("The queue size is: %d", 10 - nwy_get_queue_spaceevent_cnt(mqtt_publish_msg_queue));
         }
-        //function is called to send an acknowledgment (ACK) response
+
         send_ack_nack(0, uart_strcut->cmd, NULL, 0);
         if (http_download_flag == 0)
         {
@@ -391,27 +372,19 @@ int32_t execute_command(UART_data_struct *uart_strcut)
             tork_bldr_cmd_e = TORK_BLDR_SEND_DATA_CMD;
         }
         break;
-
     }
-    //
     case TORK_BLDR_WRITE_DATA_BLOCK_ACK:
     {
-        //ndicates that the write data block command acknowledgment was received
         if (uart_strcut->payload[0] == 0xAA)
         {
             if (all_blocks_sent == 1)
             {
-                //if all firmware image blocks have been sent and acknowledged. 
-                //then a message is printed using echo to indicate that the entire firmware image write was successful
                 nwy_ext_echo("Tork bootloader entire firmware image write successful\r\n");
-               //epresents the next command to be sent in the bootloader
                 tork_bldr_cmd_e = TORK_BLDR_SEND_JMP_CMD;
             }
             else
-            {   //here are still remaining blocks to be sent.
-            //then a message is printed usin echo to indicate that the current block write was successfu
+            {
                 nwy_ext_echo("Tork bootloader block write successful\r\n");
-                // command to send the next data block in the bootloader
                 tork_bldr_cmd_e = TORK_BLDR_SEND_DATA_CMD;
             }
         }
@@ -430,14 +403,12 @@ int32_t execute_command(UART_data_struct *uart_strcut)
     case BOOTLOADER_MODE_ENABLE_CMD_SEND:
     {
         if (uart_strcut->payload[0] == 0xAA)
-        {   //If the acknowledgment is successful, a message is printed to indicate that 
-        //the bootloader mode activation command acknowledgment was received successfully
+        {
             nwy_ext_echo("Bootloader mode activated cmd  ACK Success received\r\n");
-            //next command to be sent in the bootloader configuration data phase
             bootloader_uart_tx_cmd_e = BOOTLOADER_CONFIG_DATA_CMD_SEND;
         }
         else
-        {   //he bootloader mode activation command acknowledgment was received but with a failure status
+        {
             nwy_ext_echo("Bootloader mode activated cmd  ACK  Failer received\r\n");
         }
     }
@@ -500,28 +471,21 @@ int32_t execute_command(UART_data_struct *uart_strcut)
         if (uart_strcut->payload[0] == 0xAA)
         {
             nwy_ext_echo("Bootloader BOOTLOADER_WHOLE_BIN_CRC_CHECK_CMD_SEND  ACK Success received\r\n");
-            //next command to be sent in the bootloader process
-            // indicating the transition to the bootloader mode
             bootloader_uart_tx_cmd_e = BOOTLOADER_JUMPING_TO_BOOTLOADER_CMD_SEND;
         }
         else
         {
             if (s32_update_retries > 0)
             {
-                //decremented
                 s32_update_retries--;
-                //system will retry sending the configuration data command.
                 bootloader_uart_tx_cmd_e = BOOTLOADER_CONFIG_DATA_CMD_SEND;
             }
             else
-            ////maximum number of retries has been reached
-            {   
+            {
                 publish_action_status(ota_action_id, 85, "Failed", "S32 CRC Mismatch");
-                //delay of 3 seconds
                 nwy_sleep(3000);
                 publish_action_status(ota_action_id, 85, "Failed", "S32 CRC Mismatch");
                 nwy_sleep(3000);
-                //shuts down the system
                 nwy_power_off(2);
             }
             nwy_ext_echo("Bootloader BOOTLOADER_WHOLE_BIN_CRC_CHECK_CMD_SEND ACK failed received\r\n");
@@ -593,8 +557,6 @@ int32_t execute_command(UART_data_struct *uart_strcut)
         /********************************************************************************************************************/
     case BOOTLOADER_APPLICATION_NOT_AVAILABLE_CMD_SEND:
     {
-        //This case is triggered when the command acknowledgment
-        // for the bootloader application not available command is received
         bootloader_uart_tx_cmd_e = BOOTLOADER_MODE_ENABLE_CMD_SEND;
         nwy_ext_echo("BOOTLOADER_APPLICATION_NOT_AVAILABLE_CMD_ACK_RECEIVED\r\n");
     }
@@ -603,8 +565,6 @@ int32_t execute_command(UART_data_struct *uart_strcut)
     {
         // retrieve_ble_data
         uint8_t can_buff[8] = {0};
-        //extracts the message ID from the payload received via UART 
-        //and stores it in the msg_id variable
         uint32_t msg_id = ((uint32_t)(uart_strcut->payload[0])) |
                           (((uint32_t)(uart_strcut->payload[1])) << 8) |
                           (((uint32_t)(uart_strcut->payload[2])) << 16) |
@@ -617,7 +577,6 @@ int32_t execute_command(UART_data_struct *uart_strcut)
             return 0;
         }
         if (http_download_flag == 0)
-        //to send the data received via UART to a(BLE) device
             nwy_ble_send_data(12, uart_strcut->payload);
         break;
     }
@@ -660,7 +619,6 @@ int32_t execute_command(UART_data_struct *uart_strcut)
         break;
 #endif
 #if 1
-//handles the ignition message
     case 0xDD:
     {
         ign_status = uart_strcut->payload[0];
@@ -698,11 +656,8 @@ int32_t execute_command(UART_data_struct *uart_strcut)
 #endif
     case 0xEE:
     {
-        //It sends an acknowledgment (ACK) message
         send_ack_nack(0, uart_strcut->cmd, NULL, 0);
-        //sleeps for 500 milliseconds
         nwy_sleep(500);
-        //powers off the system
         nwy_power_off(1);
     }
     break;
@@ -901,7 +856,6 @@ void UART_rx_ThreadEntry(void *param)
         //     }
         // }
 
-//no download being triggered ,publish the data
         if (http_download_flag == 0)
         {
             device_shadow_counter++;
@@ -923,7 +877,6 @@ void UART_rx_ThreadEntry(void *param)
 void UART_tx_ThreadEntry(void *param)
 {
 }
-
 
 /**
 =====================================================================================================================================================
@@ -1038,7 +991,7 @@ int tork_send_can_data(uint32_t can_msg_id, uint8_t *can_data_arr, uint8_t seq)
             nwy_uart_send_data(STM_UART_fd, (uint8_t *)&can_data[i], 1);
             nwy_usleep(50);
         }
-        nwy_semaphore_release(uart_tx_semaphore);
+        nwy_semahpore_release(uart_tx_semaphore);
     }
     // nwy_ext_echo("Exiting UART transmission\r\n");
     return 0;
@@ -1128,14 +1081,13 @@ void tork_app_update(void *param)
         if (nwy_semaphore_acquire(tork_update_semaphore, 0) == true)
         {
             tork_new_fw_file_read();
-            //updating tork
             while (1)
             {
                 // should be blocked on semaphore
                 // nwy_ext_echo("Entering task\r\n");
                 if (tork_file_present == 0)
                 {
-                    nwy_semaphore_release(s32_update_semaphore);
+                    nwy_semahpore_release(s32_update_semaphore);
                     publish_action_status(ota_action_id, 85, "Progress", "");
                     break;
                 }
@@ -1262,7 +1214,7 @@ void tork_app_update(void *param)
                 {
                     idle_state_counter = 0;
                     tork_file_present = 0;
-                    nwy_semaphore_release(s32_update_semaphore);
+                    nwy_semahpore_release(s32_update_semaphore);
                     publish_action_status(ota_action_id, 85, "Progress", "");
                     // http_download_flag = 0;
                     // nwy_resume_thread(gps_app_thread);
@@ -1690,7 +1642,7 @@ void bootloader_app_uart_data_send_v(uint8_t cmd, uint8_t cmd_sts, uint8_t *data
             // nwy_sleep(1);
             nwy_usleep(50);
         }
-        nwy_semaphore_release(uart_tx_semaphore);
+        nwy_semahpore_release(uart_tx_semaphore);
     }
 }
 
@@ -1759,7 +1711,6 @@ int publish_device_shadow()
     // uint32_t ignition_button_status = (uint32_t)uart_strcut->payload[0];
     static uint32_t sq_id = 0;
     memset(json_dev_shadow_msg_buff_gau8, 0, DEV_SHADOW_MSG_BUFF_LEN);
-    //populating device shadow
     snprintf(json_dev_shadow_msg_buff_gau8, sizeof(json_dev_shadow_msg_buff_gau8), dev_shadow_mess_json,
              timestamp1,
              device_status,
@@ -1800,5 +1751,3 @@ int publish_device_shadow()
     }
     return 0;
 }
-
-

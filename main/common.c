@@ -49,59 +49,36 @@ void nwy_ext_send_sig(nwy_osiThread_t *thread, uint16 sig)
     nwy_send_thead_event(thread, &event, 0);
 }
 
-
-
 void nwy_ext_echo(char *fmt, ...)
 {
-    //array of characters used to store the formatted string
     static char echo_str[NWY_EXT_SIO_RX_MAX];
-    //pointer to a mutex object used for thread synchronization
     static nwy_osiMutex_t *echo_mutex = NULL;
     va_list a;
     int i, size;
-    // checks if echo_mutex is NULL
+
     if (NULL == echo_mutex)
-    // it initializes echo_mutex by calling the nwy_create_mutex()
         echo_mutex = nwy_create_mutex();
-    //If the creation of the mutex fails or echo_mutex is already initialized, the function returns.
     if (NULL == echo_mutex)
         return;
-        //The function then locks the mutex
-        //only one thread can access the critical section of the code at a time.
     nwy_lock_mutex(echo_mutex, 0);
-    //macro to initialize a variable argument list a based on the fmt parameter.
     va_start(a, fmt);
-    //It then calls vsnprintf to format the variable arguments
-    // according to the format string fmt and store the resulting string in echo_str
-    // maximum length of the formatted string is limited by NWY_EXT_SIO_RX_MAX.
     vsnprintf(echo_str, NWY_EXT_SIO_RX_MAX, fmt, a);
-    //calls va_end to clean up the variable argument list
     va_end(a);
-    //function calculates the length of the formatted string using strlen
     size = strlen((char *)echo_str);
     i = 0;
-    //loop is initiated to send the formatted string over the USB serial connection.
-    // The loop continues until the entire string is sent or an error occurs.
     while (1)
     {
-        //represents the number of characters successfully sent
         int tx_size;
-        //sends data from the current position i and with a length of size - i.
+
         tx_size = nwy_usb_serial_send((char *)echo_str + i, size - i);
-        //indicating an error or no characters sent, the loop is terminated.
         if (tx_size <= 0)
             break;
-            //If characters were sent, the variable i is incremented by tx_size, 
-            //and the function checks if there are more characters to send (i < size). 
-            //If there are, it stops execution for 10 milliseconds using nwy_sleep(10) before continuing the loop.
         i += tx_size;
         if ((i < size))
             nwy_sleep(10);
         else
             break;
     }
-    //Finally, the function unlocks the mutex by calling nwy_unlock_mutex(echo_mutex), 
-    //allowing other threads to access the critical section
     nwy_unlock_mutex(echo_mutex);
 }
 

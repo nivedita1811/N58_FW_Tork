@@ -128,7 +128,6 @@ void gps_recieve()
       //  nwy_ext_echo("\r\n %s", nmea_data);
         if ((strncmp(nmea_data, "$GPGGA", 6) == 0))
         {
-
             i = parse_comma_delimited_str(nmea_data, field, 20);
             if (memcmp(field[6],"1",1) == 0)
             {
@@ -195,6 +194,7 @@ void gps_recieve()
     }
     
 }
+
 double convertToDecimalDegrees(const char *latLon, const char *direction)
 {
     char deg[4] = {0};

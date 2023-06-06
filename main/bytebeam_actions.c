@@ -187,7 +187,7 @@
 #include "bytebeam.h"
 #include "common.h"
 #include "bytebeam_uart.h"
-
+#include "nwy_osi_api.h"
 volatile int http_download_flag = 0;
 extern int network_thread_counter;
 
@@ -199,7 +199,6 @@ char action_mess_json[] = "[{"
                        "\"id\":\"%s\","
                        "\"progress\": %d"
                        "}]\n";
-
 char new_action_json[] = "[{"
                        "\"timestamp\": %llu,"
                        "\"sequence\": %d,"
@@ -384,10 +383,6 @@ int handle_ota(char *payload_string, char *action_id)
     return 0;
 }
 
-int release_new_thread()
-{
-    nwy_semaphore_release(new_thread_semaphore, 1);
-}
 
 int handle_actions(char* action_received)
 {

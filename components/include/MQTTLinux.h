@@ -95,7 +95,7 @@ typedef struct {
 	uint16_t DestinationPort;            ///< Integer defining the connection port of the MQTT service.
 	uint32_t timeout_ms;                ///< Unsigned integer defining the TLS handshake timeout value in milliseconds.
 	boolean_t ServerVerificationFlag;        ///< Boolean.  True = perform server certificate hostname validation.  False = skip validation \b NOT recommended.
-	uint8_t sslversion;                     //sslversion default value = 3   0 == SSL3.0 1 == TLS v1.0  2 == TLS v1.1 3 == TLS v1.2
+	uint8_t sslversion                     //sslversion default value = 3   0 == SSL3.0 1 == TLS v1.0  2 == TLS v1.1 3 == TLS v1.2
 } TLSConnectParams;
 /*End: Add by yjj in 2018.05.07 for support SSL/TLS*/
 

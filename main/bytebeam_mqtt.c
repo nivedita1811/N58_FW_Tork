@@ -511,10 +511,11 @@
 #include "miniz.h"
 #include "bytebeam_actions.h"
 #include "bytebeam_nwy_sdk.h"
-
+#include "nwy_osi_api.h"
+#include "json_server.h"
 
 // Declaration of the publish_new_thread function
-void publish_new_thread(const char *content);
+int publish_new_thread(char *content);
 JSMN_JSON_NEW_MESSAGE_tst JSMN_JSON_NEW_MESSAGE_st_obj;
 
 
@@ -551,6 +552,10 @@ char echo_buff[NWY_EXT_SIO_PER_LEN + 1] = {0};
 nwy_paho_mqtt_at_param_type paho_mqtt_at_param = {0};
 nwy_osiMutex_t *ext_mutex = NULL;  //??
 
+uint8_t json_new_thread_buff_gau8[NEW_THREAD_MSG_BUFF_LEN] = {
+    0,
+};
+
 UART_data_struct uart_strcut;
 MQTTPacket_connectData *options;
 MQTTMessage pubmsg = {0};
@@ -570,11 +575,11 @@ void mqtt_topics_init()
     sprintf(DEV_SHADOW_TOPIC, "/%s/%s/%s/%s/%s", "tenants",project_id_global,"devices",device_id_global, "events/device_shadow/jsonarray");
     sprintf(NEW_TOPIC, "/%s/%s/%s/%s/%s" ,"tenants",project_id_global,"devices",device_id_global,"events/newcontent/jsonarray");
 }
-char new_action_json[] = "[{"
-                       "\"timestamp\": %llu,"
-                       "\"sequence\": %d,"
-                       "\"content\" : %s"
-                       "}]\n";
+// char new_action_json[] = "[{"
+//                        "\"timestamp\": %llu,"
+//                        "\"sequence\": %d,"
+//                        "\"content\" : %s"
+//                        "}]\n";
 
 void messageArrived(MessageData *md)
 {
@@ -1163,8 +1168,8 @@ bool get_MQTT_COnnection_Status(void)
 
 int publish_new_thread(char *content)
 {
+    struct timeval tv;
     gettimeofday(&tv, NULL);
-
     double s = tv.tv_sec;
     double ms = ((double)tv.tv_usec) / 1.0e6;
 

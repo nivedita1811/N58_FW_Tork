@@ -170,8 +170,8 @@ void nwy_delete_mutex(nwy_osiMutex_t *mutex);
 //Semaphore API
 nwy_osiSemaphore_t *nwy_semaphore_create(uint32 max_count, uint32 init_count);
 bool nwy_semaphore_acquire(nwy_osiSemaphore_t *sem, uint32 timeout);
-void nwy_semaphore_release(nwy_osiSemaphore_t *sem);
-void nwy_semaphore_delete(nwy_osiSemaphore_t *sem);
+void nwy_semahpore_release(nwy_osiSemaphore_t *sem);
+void nwy_semahpore_delete(nwy_osiSemaphore_t *sem);
 
 //pipe
 nwy_osiPipe_t *nwy_osiPipe_create(unsigned size);

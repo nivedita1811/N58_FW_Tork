@@ -23,9 +23,9 @@ uint8_t json_ignition_message_buff_gau8[JSON_IGN_MESSAGES_BUFF_LEN] = {
 uint8_t json_dev_shadow_msg_buff_gau8[DEV_SHADOW_MSG_BUFF_LEN] = {
     0,
 };
-uint8_t json_new_thread_buff_gau8[NEW_THREAD_MSG_BUFF_LEN] = {
-    0,
-};
+// uint8_t json_new_thread_buff_gau8[NEW_THREAD_MSG_BUFF_LEN] = {
+//     0,
+// };
 
 
 uint8_t json_pack_can_message(JSMN_JSON_CAN_MESSAGE_tst *can_mess_pst, uint64_t timestamp);
@@ -102,11 +102,7 @@ char dev_shadow_mess_json[] = "[{"
                               "\"vcu_hw_ver\": %s,"
                               "\"sequence\":%d"
                               "}]\n";
-char new_action_json[] = "[{"
-                       "\"timestamp\": %llu,"
-                       "\"sequence\": %d,"
-                       "\"content\" : %s"
-                       "}]\n";
+
                        
 volatile uint8_t old_byte1 = 0;
 uint8_t json_pack_can_message(JSMN_JSON_CAN_MESSAGE_tst *can_mess_pst, uint64_t timestamp)

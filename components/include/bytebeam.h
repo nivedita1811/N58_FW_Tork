@@ -118,7 +118,6 @@ void read_data_ThreadEntry(void *param);
 void store_data_ThreadEntry(void *param);
 void tork_app_update(void *param);
 void s32_update_app(void *param);
-void newThreadEntry(void *param);
 
 extern nwy_osiTimer_t *network_timer;
 extern nwy_osiMessageQueue_t *mqtt_publish_msg_queue;
@@ -129,7 +128,6 @@ extern nwy_osiSemaphore_t *mqtt_connect_semaphore;
 extern nwy_osiSemaphore_t *uart_tx_semaphore;
 extern nwy_osiSemaphore_t *tork_update_semaphore;
 extern nwy_osiSemaphore_t *s32_update_semaphore;
-extern nwy_osiSemaphore_t *new_thread_semaphore;
 
 extern nwy_osiThread_t *network_app_thread;
 extern nwy_osiThread_t *mqtt_publish_thread;
@@ -138,7 +136,6 @@ extern nwy_osiThread_t *ble_app_thread_handle;
 extern nwy_osiThread_t *s32_update_thread;
 extern nwy_osiThread_t *read_data_thread;
 extern nwy_osiThread_t *device_config_thread_handle;
-extern nwy_osiThread_t *new_thread;
 
 extern bool store_msg_flag;
 

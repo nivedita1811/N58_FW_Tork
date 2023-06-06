@@ -283,7 +283,7 @@ int mbedtls_md4_ret( const unsigned char *input,
  */
 MBEDTLS_DEPRECATED void mbedtls_md4( const unsigned char *input,
                                      size_t ilen,
-                                     unsigned char out[16] );
+                                     unsigned char output[16] );
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */

@@ -4,8 +4,7 @@
 #include "device_config.h"
 #include "nwy_spi.h"
 #include "bytebeam_sdk.h"
-#include "bytebeam_mqtt.c"
-
+#include "nwy_osi_api.h"
 int STM_UART_fd = 0;
 bool store_msg_flag = false;
 uint8_t ble_status = 0;
@@ -62,7 +61,7 @@ void read_and_send_data_mqtt(void);
 uint8_t data_backup_file_count();
 extern uint8_t ota_url[];
 int ble_state = 0;
-extern char device_id_global[10];
+extern char device_id_global[5];
 char dev_id_hex[10] = {0,};
 int dev_id_int = 0;
 
@@ -325,6 +324,10 @@ void new_thread_entry(void *param)
     
     }
 }
+int release_new_thread()
+{
+    nwy_semahpore_release(new_thread_semaphore);
+}
 
 int appimg_enter(void *param)
 {
@@ -401,7 +404,7 @@ int appimg_enter(void *param)
     s32_update_thread = nwy_create_thread("s32_app_thread", s32_update_app, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 15, 16);
 
     //creating my new thread
-    new_thread = nwy_create_thread("new_thread", new_thread_entry, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 10, 16);
+    new_thread = nwy_create_thread("new_action", new_thread_entry, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 10, 16);
 
     Network_Init();
     network_app_thread = nwy_create_thread("mythread", Network_ThreadEntry, NULL, NWY_OSI_PRIORITY_NORMAL, 1024 * 20, 16);

@@ -10,9 +10,6 @@ $ git clone https://github.com/bytebeamio/Tork_Motors_N58_FW.git
 
 # step into cloned repo directory
 $ cd Tork_Motors_N58_FW
-
-# install the python dependencies
-$ pip install -r requirements.txt
 ```
 
 ## Project Usage
@@ -51,16 +48,37 @@ $ nwy.py monitor
 $ nwy.py build-ota
 ```
 
-## Making Changes
+## Developer Mode
 
-Make changes to the nwy.py script and once done you can use the below commands to generate the nwy.py binary on your end
-
-**Note:** If you would like to share the changes with others, We recomment to increase the nwy.py version based on your changes :)
+### Environment Setup
 
 ```bash
-## step into script directory
+# setup nwy environment
+$ nwy_env.bat
+
+# install the python dependencies
+$ pip install -r requirements.txt
+```
+
+Add your python site packges path to the prebuilts\win32\python3\python36._pth
+### Making Changes
+
+Make changes to the nwy.py script and test the same using below python command format
+
+```bash
+# python commands format
+$ python script/nwy.py your_argument_goes_here
+```
+
+### Generating Binary
+
+```bash
+# step into script directory
 $ cd script
 
 # build nwy.py exectuable
 $ build_nwy.py.bat
 ```
+
+**Note:** If you would like to share the changes with others, We recomment to increase the nwy.py version based on your changes :)
+
