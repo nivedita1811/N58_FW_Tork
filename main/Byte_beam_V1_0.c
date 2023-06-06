@@ -313,17 +313,20 @@ void new_thread_entry(void *param)
 {
     char *action_id = (char *)param;
     char *content = "hello from cloud";
+    // Block the thread initially
+    nwy_semaphore_acquire(new_thread_semaphore, 1);
     while (1) 
     {
-      // Block the thread initially
-      nwy_semaphore_acquire(new_thread_semaphore, 0);
-      // Release the semaphore 
-      release_new_thread();
-      nwy_ext_echo("%s", content);
-      publish_new_thread(content);
+        // Wait for the semaphore to be released
+        nwy_semaphore_acquire(new_thread_semaphore, 0);
+        // Print the content
+        nwy_ext_echo("%s", content);
+        // Publish the content or perform other actions
+        publish_new_thread(content);
     
     }
 }
+
 int release_new_thread()
 {
     nwy_semahpore_release(new_thread_semaphore);
